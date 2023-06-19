@@ -28,14 +28,15 @@ const addCard = async (req, res, next) => {
 };
 
 const deleteCard = async (req, res, next) => {
-  await Card.findOne({ _id: req.params.cardId })
+  const cardById = { _id: req.params.cardId };
+  await Card.findOne(cardById)
     .orFail(() => new NotFoundError("Can't delete non exisiting card"))
     .then((card) => {
       const ownerId = card.owner.toString();
       if (ownerId !== req.user._id) {
         throw new ForbiddenError('Forbidden');
       }
-      return Card.findOneAndDelete(req.params.cardId)
+      return Card.findOneAndDelete(cardById)
         .then((cardDeleted) => res.send({ data: cardDeleted }))
         .catch(next);
     })
